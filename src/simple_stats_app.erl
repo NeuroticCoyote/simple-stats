@@ -76,13 +76,13 @@ convert_key(Key) when is_integer(Key) ->
     integer_to_binary(Key);
 convert_key(Key) when is_tuple(Key) ->
     List = tuple_to_list(Key),
-    lists:foldl(fun(V, Acc) -> << Acc/binary, ".", (atom_to_binary(V, latin1))/binary >> end, <<>>, List).
+    lists:foldl(fun(V, Acc) -> << Acc/binary, (atom_to_binary(V, latin1))/binary , ".">> end, <<>>, List).
 
 convert_value([], _, Acc) ->
     Acc;
 convert_value([{Key,Value} | Rest], BinaryKey, Acc) ->
     BinaryKey2 = convert_key(Key),
-    convert_value(Rest, BinaryKey, << Acc/binary, BinaryKey/binary, ".", BinaryKey2/binary, "=", (integer_to_binary(Value))/binary, "\n" >>).
+    convert_value(Rest, BinaryKey, << Acc/binary, BinaryKey/binary, BinaryKey2/binary, "=", (integer_to_binary(Value))/binary, "\n" >>).
 
 reply(Result) ->
     <<"HTTP/1.0 200 OK\r\n",
