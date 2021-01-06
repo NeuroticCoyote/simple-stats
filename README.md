@@ -1,1 +1,9 @@
-# simple-stats
+simple_stats
+=====
+
+An OTP application
+
+Build
+-----
+
+    $ rebar3 compile

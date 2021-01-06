@@ -1,0 +1,18 @@
+{application, simple_stats,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {simple_stats_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    exometer_core,
+    jsx,
+    lager
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
