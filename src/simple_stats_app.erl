@@ -10,6 +10,8 @@
 -export([start/2, stop/1, receiver/1]).
 -export([update_gauge/2, update_spiral/2, update_histogram/2, update_stat/3, get_stat/1]).
 
+-define(INCREMENT_HTTP_RECEIVED_GET_COUNTER(Integer), update_spiral([http, received, get], Integer)).
+
 %% ======================================================
 %% API
 %% ======================================================
@@ -56,7 +58,8 @@ receiver(ListenSocket) ->
     ok = inet:setopts(AcceptSocket, [{packet, http_bin}]),
 
     receive
-        _Msg ->
+        {http, _, _Msg} ->
+            ?INCREMENT_HTTP_RECEIVED_GET_COUNTER(1),
             BinaryResult = maps:fold(
                 fun(K,V, Acc) ->
                     BinaryKey = convert_key(K),
@@ -66,7 +69,9 @@ receiver(ListenSocket) ->
 
             ok = inet:setopts(AcceptSocket, [{packet, raw}]),
             ok = gen_tcp:send(AcceptSocket, reply(BinaryResult)),
-            gen_tcp:close(AcceptSocket)
+            gen_tcp:close(AcceptSocket);
+        _Other ->
+            ok
     end,
     receiver(ListenSocket).
 
@@ -82,7 +87,8 @@ convert_value([], _, Acc) ->
     Acc;
 convert_value([{Key,Value} | Rest], BinaryKey, Acc) ->
     BinaryKey2 = convert_key(Key),
-    convert_value(Rest, BinaryKey, << Acc/binary, BinaryKey/binary, BinaryKey2/binary, "=", (integer_to_binary(Value))/binary, "\n" >>).
+    BinaryValue = convert_key(Value),
+    convert_value(Rest, BinaryKey, << Acc/binary, BinaryKey/binary, BinaryKey2/binary, "=", BinaryValue/binary, "\n" >>).
 
 reply(Result) ->
     <<"HTTP/1.0 200 OK\r\n",
