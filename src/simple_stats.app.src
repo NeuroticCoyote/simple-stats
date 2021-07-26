@@ -6,7 +6,9 @@
   {applications,
    [kernel,
     stdlib,
-    exometer_core
+    exometer_core,
+    jsx,
+    lager
    ]},
   {env,[]},
   {modules, []},
